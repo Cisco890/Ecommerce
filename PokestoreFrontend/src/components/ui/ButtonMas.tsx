@@ -1,8 +1,8 @@
-import React from "react";
+import React from "react"
 
 interface ButtonMasProps {
-  onClick?: () => void;
-  disabled?: boolean;
+  onClick?: () => void
+  disabled?: boolean
 }
 
 const ButtonMas: React.FC<ButtonMasProps> = ({ onClick, disabled }) => (
@@ -14,6 +14,6 @@ const ButtonMas: React.FC<ButtonMasProps> = ({ onClick, disabled }) => (
   >
     +
   </button>
-);
+)
 
-export default ButtonMas;
+export default ButtonMas

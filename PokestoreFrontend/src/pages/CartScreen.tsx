@@ -1,16 +1,16 @@
-import React, { useState } from "react";
-import ButtonMain from "../components/ui/ButtonMain";
-import ButtonCarrito from "../components/ui/ButtonCarrito";
-import CardCarrito from "../components/CardCartito";
-import ButtonConfirmarCaptura from "../components/ui/ButtonConfirmarCaptura";
-import "../index.css";
-import "../app.css";
+import React, { useState } from "react"
+import ButtonMain from "../components/ui/ButtonMain"
+import ButtonCarrito from "../components/ui/ButtonCarrito"
+import CardCarrito from "../components/CardCartito"
+import ButtonConfirmarCaptura from "../components/ui/ButtonConfirmarCaptura"
+import "../index.css"
+import "../app.css"
 
 interface CartItem {
-  name: string;
-  price: number;
-  img: string;
-  quantity: number;
+  name: string
+  price: number
+  img: string
+  quantity: number
 }
 
 const initialCart: CartItem[] = [
@@ -32,31 +32,35 @@ const initialCart: CartItem[] = [
     img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png",
     quantity: 1,
   },
-];
+]
 
 const CartScreen: React.FC = () => {
-  const [cart, setCart] = useState<CartItem[]>(initialCart);
+  const [cart, setCart] = useState<CartItem[]>(initialCart)
 
   const increase = (idx: number) => {
     setCart((c) =>
       c.map((it, i) =>
-        i === idx && it.quantity < 9 ? { ...it, quantity: it.quantity + 1 } : it
-      )
-    );
-  };
+        i === idx && it.quantity < 9
+          ? { ...it, quantity: it.quantity + 1 }
+          : it,
+      ),
+    )
+  }
   const decrease = (idx: number) => {
     setCart((c) =>
       c.map((it, i) =>
-        i === idx && it.quantity > 1 ? { ...it, quantity: it.quantity - 1 } : it
-      )
-    );
-  };
+        i === idx && it.quantity > 1
+          ? { ...it, quantity: it.quantity - 1 }
+          : it,
+      ),
+    )
+  }
   const remove = (idx: number) => {
-    setCart((c) => c.filter((_, i) => i !== idx));
-  };
+    setCart((c) => c.filter((_, i) => i !== idx))
+  }
 
-  const totalItems = cart.reduce((sum, it) => sum + it.quantity, 0);
-  const totalPrice = cart.reduce((sum, it) => sum + it.quantity * it.price, 0);
+  const totalItems = cart.reduce((sum, it) => sum + it.quantity, 0)
+  const totalPrice = cart.reduce((sum, it) => sum + it.quantity * it.price, 0)
 
   return (
     <div>
@@ -116,7 +120,7 @@ const CartScreen: React.FC = () => {
         <ButtonConfirmarCaptura onClick={() => alert("¡Captura confirmada!")} />
       </main>
     </div>
-  );
-};
+  )
+}
 
-export default CartScreen;
+export default CartScreen

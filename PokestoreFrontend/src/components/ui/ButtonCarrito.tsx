@@ -1,19 +1,19 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import masterball from "../../assets/masterball.png";
+import React from "react"
+import { useNavigate } from "react-router-dom"
+import masterball from "../../assets/masterball.png"
 
 interface ButtonCarritoProps {
-  onClick?: () => void;
-  count?: number;
+  onClick?: () => void
+  count?: number
 }
 
 const ButtonCarrito: React.FC<ButtonCarritoProps> = ({ onClick, count }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const handleClick = () => {
-    navigate("/cart");
-    onClick?.();
-  };
+    navigate("/cart")
+    onClick?.()
+  }
 
   return (
     <button className="btn-carrito" onClick={handleClick}>
@@ -22,7 +22,7 @@ const ButtonCarrito: React.FC<ButtonCarritoProps> = ({ onClick, count }) => {
         <span className="btn-carrito__badge">{count}</span>
       )}
     </button>
-  );
-};
+  )
+}
 
-export default ButtonCarrito;
+export default ButtonCarrito

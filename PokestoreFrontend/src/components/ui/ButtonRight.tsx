@@ -1,7 +1,7 @@
-import React from "react";
+import React from "react"
 
 interface ButtonRightProps {
-  onClick?: () => void;
+  onClick?: () => void
 }
 
 const ButtonRight: React.FC<ButtonRightProps> = ({ onClick }) => (
@@ -12,6 +12,6 @@ const ButtonRight: React.FC<ButtonRightProps> = ({ onClick }) => (
   >
     <span>→</span>
   </button>
-);
+)
 
-export default ButtonRight;
+export default ButtonRight

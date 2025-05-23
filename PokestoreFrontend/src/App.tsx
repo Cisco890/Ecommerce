@@ -1,7 +1,7 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import MainScreen from "./pages/MainScreen";
-import DetailScreen from "./pages/DetailScreen";
-import CartScreen from "./pages/CartScreen";
+import { Routes, Route, Navigate } from "react-router-dom"
+import MainScreen from "./pages/MainScreen"
+import DetailScreen from "./pages/DetailScreen"
+import CartScreen from "./pages/CartScreen"
 
 const App = () => (
   <Routes>
@@ -10,5 +10,5 @@ const App = () => (
     <Route path="/cart" element={<CartScreen />} />
     <Route path="*" element={<Navigate to="/" replace />} />
   </Routes>
-);
-export default App;
+)
+export default App

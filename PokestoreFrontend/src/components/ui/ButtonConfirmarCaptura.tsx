@@ -1,7 +1,7 @@
-import React from "react";
+import React from "react"
 
 interface ButtonConfirmarCapturaProps {
-  onClick?: () => void;
+  onClick?: () => void
 }
 
 const ButtonConfirmarCaptura: React.FC<ButtonConfirmarCapturaProps> = ({
@@ -10,6 +10,6 @@ const ButtonConfirmarCaptura: React.FC<ButtonConfirmarCapturaProps> = ({
   <button className="btn-confirmar-captura" onClick={onClick}>
     Confirmar Captura
   </button>
-);
+)
 
-export default ButtonConfirmarCaptura;
+export default ButtonConfirmarCaptura

@@ -1,9 +1,9 @@
-import React from "react";
+import React from "react"
 
 interface ButtonCapturadoDetallesProps {
-  captured: boolean;
-  fullWidth?: boolean;
-  onClick?: () => void;
+  captured: boolean
+  fullWidth?: boolean
+  onClick?: () => void
 }
 
 const ButtonCapturadoDetalles: React.FC<ButtonCapturadoDetallesProps> = ({
@@ -17,6 +17,6 @@ const ButtonCapturadoDetalles: React.FC<ButtonCapturadoDetallesProps> = ({
   >
     {captured ? "Capturado" : "Atrapar"}
   </button>
-);
+)
 
-export default ButtonCapturadoDetalles;
+export default ButtonCapturadoDetalles

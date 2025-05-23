@@ -1,12 +1,12 @@
-import React from "react";
-import ButtonCapturadoCard from "./ui/ButtonCapturadoCard";
+import React from "react"
+import ButtonCapturadoCard from "./ui/ButtonCapturadoCard"
 
 export interface CardProps {
-  name: string;
-  price: number;
-  img: string;
-  captured: boolean;
-  onToggle: () => void;
+  name: string
+  price: number
+  img: string
+  captured: boolean
+  onToggle: () => void
 }
 
 const Card: React.FC<CardProps> = ({
@@ -33,6 +33,6 @@ const Card: React.FC<CardProps> = ({
       <ButtonCapturadoCard captured={captured} onClick={onToggle} />
     </div>
   </div>
-);
+)
 
-export default Card;
+export default Card

@@ -1,17 +1,17 @@
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState } from "react"
+import { useParams } from "react-router-dom"
 
-import ButtonMain from "../components/ui/ButtonMain";
-import ButtonCarrito from "../components/ui/ButtonCarrito";
-import ButtonCapturadoDetalles from "../components/ui/ButtonCapturadoDetalles";
-import Card from "../components/Card";
-import "../index.css";
-import "../app.css";
+import ButtonMain from "../components/ui/ButtonMain"
+import ButtonCarrito from "../components/ui/ButtonCarrito"
+import ButtonCapturadoDetalles from "../components/ui/ButtonCapturadoDetalles"
+import Card from "../components/Card"
+import "../index.css"
+import "../app.css"
 
 interface Pokemon {
-  name: string;
-  price: number;
-  img: string;
+  name: string
+  price: number
+  img: string
 }
 
 // Datos de ejemplo sólo para Bulbasaur
@@ -25,7 +25,7 @@ const bulbaDetail = {
   weight: "6,9 kg",
   height: "0,7 m",
   stats: { Ataque: 118, Defensa: 111, Resistencia: 128 },
-};
+}
 
 // Evoluciones de Bulbasaur
 const bulbaEvos: Pokemon[] = [
@@ -39,24 +39,24 @@ const bulbaEvos: Pokemon[] = [
     price: 150,
     img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png",
   },
-];
+]
 
 const DetailScreen: React.FC = () => {
-  const { name } = useParams<{ name: string }>();
+  const { name } = useParams<{ name: string }>()
   // Estado local para Bulbasaur
-  const [captured, setCaptured] = useState(false);
+  const [captured, setCaptured] = useState(false)
   // Estado local para cada evo
   const [evoCaptured, setEvoCaptured] = useState<boolean[]>(
-    bulbaEvos.map(() => false)
-  );
+    bulbaEvos.map(() => false),
+  )
 
   const toggleEvo = (idx: number) => {
     setEvoCaptured((prev) => {
-      const next = [...prev];
-      next[idx] = !next[idx];
-      return next;
-    });
-  };
+      const next = [...prev]
+      next[idx] = !next[idx]
+      return next
+    })
+  }
 
   return (
     <div>
@@ -141,7 +141,7 @@ const DetailScreen: React.FC = () => {
         </div>
       </main>
     </div>
-  );
-};
+  )
+}
 
-export default DetailScreen;
+export default DetailScreen

@@ -1,16 +1,16 @@
-import React from "react";
-import ButtonMas from "./ui/ButtonMas";
-import ButtonMenos from "./ui/ButtonMenos";
-import ButtonBasura from "./ui/ButtonBasura";
+import React from "react"
+import ButtonMas from "./ui/ButtonMas"
+import ButtonMenos from "./ui/ButtonMenos"
+import ButtonBasura from "./ui/ButtonBasura"
 
 interface CardCarritoProps {
-  name: string;
-  price: number;
-  img: string;
-  quantity: number;
-  onIncrease: () => void;
-  onDecrease: () => void;
-  onRemove: () => void;
+  name: string
+  price: number
+  img: string
+  quantity: number
+  onIncrease: () => void
+  onDecrease: () => void
+  onRemove: () => void
 }
 
 const CardCarrito: React.FC<CardCarritoProps> = ({
@@ -35,6 +35,6 @@ const CardCarrito: React.FC<CardCarritoProps> = ({
       <ButtonBasura onClick={onRemove} />
     </div>
   </div>
-);
+)
 
-export default CardCarrito;
+export default CardCarrito

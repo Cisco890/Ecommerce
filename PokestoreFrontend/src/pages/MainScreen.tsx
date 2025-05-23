@@ -1,17 +1,17 @@
-import React, { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import ButtonMain from "../components/ui/ButtonMain";
-import ButtonCarrito from "../components/ui/ButtonCarrito";
-import ButtonLeft from "../components/ui/ButtonLeft";
-import ButtonRight from "../components/ui/ButtonRight";
-import Card from "../components/Card";
-import "../index.css";
-import "../app.css";
+import React, { useRef, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import ButtonMain from "../components/ui/ButtonMain"
+import ButtonCarrito from "../components/ui/ButtonCarrito"
+import ButtonLeft from "../components/ui/ButtonLeft"
+import ButtonRight from "../components/ui/ButtonRight"
+import Card from "../components/Card"
+import "../index.css"
+import "../app.css"
 
 interface Pokemon {
-  name: string;
-  price: number;
-  img: string;
+  name: string
+  price: number
+  img: string
 }
 
 // Iniciales y evoluciones para Generaciones 1 y 2
@@ -116,27 +116,27 @@ const generations: { title: string; pokemons: Pokemon[] }[] = [
       },
     ],
   },
-];
+]
 
 const MainScreen: React.FC = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   const [capturedStates, setCapturedStates] = useState(
-    generations.map((gen) => gen.pokemons.map(() => false))
-  );
-  const refs = generations.map(() => useRef<HTMLDivElement>(null));
+    generations.map((gen) => gen.pokemons.map(() => false)),
+  )
+  const refs = generations.map(() => useRef<HTMLDivElement>(null))
 
   const toggleCapture = (genIdx: number, idx: number) => {
     setCapturedStates((prev) => {
-      const next = prev.map((arr) => [...arr]);
-      next[genIdx][idx] = !next[genIdx][idx];
-      return next;
-    });
-  };
+      const next = prev.map((arr) => [...arr])
+      next[genIdx][idx] = !next[genIdx][idx]
+      return next
+    })
+  }
 
   const scroll = (genIdx: number, offset: number) => {
-    const container = refs[genIdx].current;
-    if (container) container.scrollBy({ left: offset, behavior: "smooth" });
-  };
+    const container = refs[genIdx].current
+    if (container) container.scrollBy({ left: offset, behavior: "smooth" })
+  }
 
   return (
     <div>
@@ -215,7 +215,7 @@ const MainScreen: React.FC = () => {
         ))}
       </main>
     </div>
-  );
-};
+  )
+}
 
-export default MainScreen;
+export default MainScreen

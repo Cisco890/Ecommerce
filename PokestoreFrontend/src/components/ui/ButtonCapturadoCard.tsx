@@ -1,8 +1,8 @@
-import React from "react";
+import React from "react"
 
 interface ButtonCapturadoCardProps {
-  captured: boolean;
-  onClick?: () => void;
+  captured: boolean
+  onClick?: () => void
 }
 
 const ButtonCapturadoCard: React.FC<ButtonCapturadoCardProps> = ({
@@ -12,12 +12,12 @@ const ButtonCapturadoCard: React.FC<ButtonCapturadoCardProps> = ({
   <button
     className={`btn ${captured ? "btn-capturado" : "btn-atrapar"} btn-small`}
     onClick={(e) => {
-      e.stopPropagation();
-      onClick?.();
+      e.stopPropagation()
+      onClick?.()
     }}
   >
     {captured ? "Capturado" : "Atrapar"}
   </button>
-);
+)
 
-export default ButtonCapturadoCard;
+export default ButtonCapturadoCard

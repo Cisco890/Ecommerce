@@ -1,8 +1,8 @@
-import React from "react";
+import React from "react"
 
 interface ButtonMenosProps {
-  onClick?: () => void;
-  disabled?: boolean;
+  onClick?: () => void
+  disabled?: boolean
 }
 
 const ButtonMenos: React.FC<ButtonMenosProps> = ({ onClick, disabled }) => (
@@ -14,6 +14,6 @@ const ButtonMenos: React.FC<ButtonMenosProps> = ({ onClick, disabled }) => (
   >
     −
   </button>
-);
+)
 
-export default ButtonMenos;
+export default ButtonMenos

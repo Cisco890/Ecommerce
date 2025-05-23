@@ -1,7 +1,7 @@
-import React from "react";
+import React from "react"
 
 interface ButtonBasuraProps {
-  onClick?: () => void;
+  onClick?: () => void
 }
 
 const ButtonBasura: React.FC<ButtonBasuraProps> = ({ onClick }) => (
@@ -12,6 +12,6 @@ const ButtonBasura: React.FC<ButtonBasuraProps> = ({ onClick }) => (
   >
     🗑️
   </button>
-);
+)
 
-export default ButtonBasura;
+export default ButtonBasura
