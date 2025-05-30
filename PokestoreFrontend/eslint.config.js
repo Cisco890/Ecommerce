@@ -20,6 +20,7 @@ export default defineConfig([
     rules: {
       semi: ["error", "never"],
       "no-unused-vars": "warn",
+      "react/react-in-jsx-scope": "off",
     },
   },
 ])

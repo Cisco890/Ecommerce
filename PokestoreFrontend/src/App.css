@@ -51,20 +51,22 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 1px solid #000;
-  border-radius: 50%;
-  background-color: #fff;
+  width: 88px;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
   cursor: pointer;
   transition: background-color 0.2s;
 }
+
 .btn-nav:hover {
-  background-color: #f0f0f0;
+  background-color: rgba(0, 0, 0, 0.05); /* un sutil sombreado al pasar */
 }
-.btn-nav span {
-  font-size: 1.25rem;
-  line-height: 1;
+
+.btn-nav img {
+  display: block;
+  width: 50%; /* ajusta al 50% del contenedor o pon px si prefieres */
+  height: auto;
 }
 
 /* Botón Confirmar Captura */
@@ -159,11 +161,23 @@
   display: flex;
   gap: 1rem;
   overflow-x: auto;
-  padding-bottom: 1rem;
+  padding: 0 0 8px 0;
   justify-content: center;
   scroll-snap-type: x mandatory;
 }
 
 .cart-container > * {
   scroll-snap-align: center;
+}
+/* Slider con 6 cards visibles y overflow oculto */
+.cart-container {
+  display: flex;
+  gap: 1rem;
+  width: 1400px;
+  margin: 0 auto;
+  scroll-snap-type: x mandatory;
+}
+.cart-container > div {
+  flex: 0 0 auto;
+  scroll-snap-align: smooth;
 }

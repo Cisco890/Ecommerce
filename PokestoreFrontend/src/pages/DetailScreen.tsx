@@ -1,54 +1,92 @@
-import React, { useState } from "react"
-import { useParams } from "react-router-dom"
+import React, { useState, useEffect } from "react"
+import { useParams, useNavigate } from "react-router-dom"
 
 import ButtonMain from "../components/ui/ButtonMain"
 import ButtonCarrito from "../components/ui/ButtonCarrito"
 import ButtonCapturadoDetalles from "../components/ui/ButtonCapturadoDetalles"
 import Card from "../components/Card"
+import {
+  fetchPokemonDetailByName,
+  fetchPokemonEvolutionsByName,
+} from "../services/api/apidetails"
 import "../index.css"
 import "../app.css"
 
-interface Pokemon {
+interface PokemonDetail {
+  id: number
   name: string
   price: number
   img: string
+  description: string
+  type: string
+  weight: string
+  height: string
+  stats: {
+    Ataque: number
+    Defensa: number
+    Resistencia: number
+  }
 }
 
-// Datos de ejemplo sólo para Bulbasaur
-const bulbaDetail = {
-  name: "Bulbasaur",
-  price: 50,
-  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
-  description:
-    "Una rara semilla fue plantada en su espalda al nacer. La planta brota y crece con este Pokémon.",
-  type: "Planta Veneno",
-  weight: "6,9 kg",
-  height: "0,7 m",
-  stats: { Ataque: 118, Defensa: 111, Resistencia: 128 },
+interface Evolution {
+  id: number
+  name: string
+  price: number
+  img: string
+  evolutionStage: "primera" | "segunda" | "tercera" | "legendario"
 }
-
-// Evoluciones de Bulbasaur
-const bulbaEvos: Pokemon[] = [
-  {
-    name: "Ivysaur",
-    price: 100,
-    img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/2.png",
-  },
-  {
-    name: "Venusaur",
-    price: 150,
-    img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png",
-  },
-]
 
 const DetailScreen: React.FC = () => {
   const { name } = useParams<{ name: string }>()
-  // Estado local para Bulbasaur
+  const navigate = useNavigate()
+
+  const [pokemonDetail, setPokemonDetail] = useState<PokemonDetail | null>(null)
+  const [evolutions, setEvolutions] = useState<Evolution[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
   const [captured, setCaptured] = useState(false)
-  // Estado local para cada evo
-  const [evoCaptured, setEvoCaptured] = useState<boolean[]>(
-    bulbaEvos.map(() => false),
-  )
+  const [evoCaptured, setEvoCaptured] = useState<boolean[]>([])
+
+  // Bloquear scroll al montar
+  useEffect(() => {
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.body.style.overflow = "auto"
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!name) return
+
+    const loadPokemonData = async () => {
+      setLoading(true)
+      setError(null)
+
+      try {
+        const detail = await fetchPokemonDetailByName(name)
+        if (!detail) {
+          setError("Pokémon no encontrado")
+          return
+        }
+        setPokemonDetail(detail)
+
+        const evos = await fetchPokemonEvolutionsByName(name)
+        const filtered = evos.filter(
+          (evo) => evo.name.toLowerCase() !== detail.name.toLowerCase(),
+        )
+        setEvolutions(filtered)
+        setEvoCaptured(filtered.map(() => false))
+      } catch (err) {
+        setError("Error al cargar los datos del Pokémon")
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadPokemonData()
+  }, [name])
 
   const toggleEvo = (idx: number) => {
     setEvoCaptured((prev) => {
@@ -58,18 +96,68 @@ const DetailScreen: React.FC = () => {
     })
   }
 
+  const headerStyle = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#f55151",
+    padding: "1rem",
+    position: "sticky" as const,
+    top: 0,
+    zIndex: 1000,
+  }
+
+  if (loading) {
+    return (
+      <div>
+        <header style={headerStyle}>
+          <ButtonMain />
+          <input
+            type="search"
+            placeholder="Buscar..."
+            style={{
+              borderRadius: 9999,
+              border: "none",
+              padding: "0.5rem 1rem",
+              width: 300,
+            }}
+          />
+          <ButtonCarrito count={3} />
+        </header>
+        <main style={{ padding: "2rem", textAlign: "center" }}>
+          <h2>Cargando...</h2>
+        </main>
+      </div>
+    )
+  }
+
+  if (error || !pokemonDetail) {
+    return (
+      <div>
+        <header style={headerStyle}>
+          <ButtonMain />
+          <input
+            type="search"
+            placeholder="Buscar..."
+            style={{
+              borderRadius: "9999px",
+              border: "none",
+              padding: "0.5rem 1rem",
+              width: "300px",
+            }}
+          />
+          <ButtonCarrito count={3} />
+        </header>
+        <main style={{ padding: "2rem", textAlign: "center" }}>
+          <h2>Error: {error}</h2>
+        </main>
+      </div>
+    )
+  }
+
   return (
     <div>
-      {/* Header */}
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          backgroundColor: "#f55151",
-          padding: "1rem",
-        }}
-      >
+      <header style={headerStyle}>
         <ButtonMain />
         <input
           type="search"
@@ -84,60 +172,74 @@ const DetailScreen: React.FC = () => {
         <ButtonCarrito count={3} />
       </header>
 
-      {/* Detalle */}
       <main style={{ padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
-        <div style={{ display: "flex", gap: "2rem", marginBottom: "2rem" }}>
+        <div style={{ display: "flex", gap: "2rem" }}>
           <img
-            src={bulbaDetail.img}
-            alt={bulbaDetail.name}
+            src={pokemonDetail.img}
+            alt={pokemonDetail.name}
             style={{ width: 250 }}
+            onError={(e) => {
+              ;(e.target as HTMLImageElement).src =
+                `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonDetail.id}.png`
+            }}
           />
           <div style={{ textAlign: "left" }}>
             <h1>
-              {bulbaDetail.name} — ${bulbaDetail.price}
+              {pokemonDetail.name} — ${pokemonDetail.price}
             </h1>
-            <p>{bulbaDetail.description}</p>
+            <p>{pokemonDetail.description}</p>
             <p>
-              <strong>Tipo:</strong> {bulbaDetail.type}
+              <strong>Tipo:</strong> {pokemonDetail.type}
             </p>
             <p>
-              <strong>Peso:</strong> {bulbaDetail.weight} &nbsp;{" "}
-              <strong>Altura:</strong> {bulbaDetail.height}
+              <strong>Peso:</strong> {pokemonDetail.weight} &nbsp;
+              <strong>Altura:</strong> {pokemonDetail.height}
             </p>
             <p>
-              <strong>Ataque:</strong> {bulbaDetail.stats.Ataque} &nbsp;{" "}
-              <strong>Defensa:</strong> {bulbaDetail.stats.Defensa} &nbsp;{" "}
-              <strong>Resistencia:</strong> {bulbaDetail.stats.Resistencia}
+              <strong>Ataque:</strong> {pokemonDetail.stats.Ataque} &nbsp;
+              <strong>Defensa:</strong> {pokemonDetail.stats.Defensa} &nbsp;
+              <strong>Resistencia:</strong> {pokemonDetail.stats.Resistencia}
             </p>
           </div>
         </div>
 
-        {/* Botón grande full-width */}
         <ButtonCapturadoDetalles
           captured={captured}
           fullWidth
           onClick={() => setCaptured((v) => !v)}
         />
 
-        {/* Evoluciones abajo */}
-        <div
-          style={{
-            display: "flex",
-            gap: "1rem",
-            marginTop: "2rem",
-            justifyContent: "center",
-          }}
-        >
-          {bulbaEvos.map((evo, i) => (
-            <Card
-              key={evo.name}
-              name={evo.name}
-              price={evo.price}
-              img={evo.img}
-              captured={evoCaptured[i]}
-              onToggle={() => toggleEvo(i)}
-            />
-          ))}
+        {/* Evoluciones */}
+        <div style={{ marginTop: "1rem", textAlign: "center" }}>
+          <h3 style={{ marginBottom: "1rem" }}>Evoluciones</h3>
+          {evolutions.length === 0 ? (
+            <p>Pokémon en su única forma</p>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                gap: "1rem",
+                justifyContent: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              {evolutions.map((evo, i) => (
+                <div
+                  key={evo.name}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => navigate(`/pokemon/${evo.name.toLowerCase()}`)}
+                >
+                  <Card
+                    name={evo.name}
+                    price={evo.price}
+                    img={evo.img}
+                    captured={evoCaptured[i]}
+                    onToggle={() => toggleEvo(i)}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </main>
     </div>

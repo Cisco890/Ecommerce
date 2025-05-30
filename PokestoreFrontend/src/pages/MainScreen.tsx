@@ -1,141 +1,117 @@
-import React, { useRef, useState } from "react"
+// src/pages/MainScreen.tsx
+import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import ButtonMain from "../components/ui/ButtonMain"
 import ButtonCarrito from "../components/ui/ButtonCarrito"
 import ButtonLeft from "../components/ui/ButtonLeft"
 import ButtonRight from "../components/ui/ButtonRight"
 import Card from "../components/Card"
+import { fetchPokemonByGeneration } from "../services/api/apimain"
+import type { GenerationPokemon } from "../services/api/apimain"
 import "../index.css"
 import "../app.css"
 
-interface Pokemon {
-  name: string
-  price: number
-  img: string
-}
-
-// Iniciales y evoluciones para Generaciones 1 y 2
-const generations: { title: string; pokemons: Pokemon[] }[] = [
-  {
-    title: "Primera Generación",
-    pokemons: [
-      {
-        name: "Bulbasaur",
-        price: 50,
-        img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
-      },
-      {
-        name: "Ivysaur",
-        price: 100,
-        img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/2.png",
-      },
-      {
-        name: "Venusaur",
-        price: 150,
-        img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png",
-      },
-      {
-        name: "Charmander",
-        price: 50,
-        img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png",
-      },
-      {
-        name: "Charmeleon",
-        price: 100,
-        img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/5.png",
-      },
-      {
-        name: "Charizard",
-        price: 150,
-        img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png",
-      },
-      {
-        name: "Squirtle",
-        price: 50,
-        img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png",
-      },
-      {
-        name: "Wartortle",
-        price: 100,
-        img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/8.png",
-      },
-      {
-        name: "Blastoise",
-        price: 150,
-        img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png",
-      },
-    ],
-  },
-  {
-    title: "Segunda Generación",
-    pokemons: [
-      {
-        name: "Chikorita",
-        price: 50,
-        img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/152.png",
-      },
-      {
-        name: "Bayleef",
-        price: 100,
-        img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/153.png",
-      },
-      {
-        name: "Meganium",
-        price: 150,
-        img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/154.png",
-      },
-      {
-        name: "Cyndaquil",
-        price: 50,
-        img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/155.png",
-      },
-      {
-        name: "Quilava",
-        price: 100,
-        img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/156.png",
-      },
-      {
-        name: "Typhlosion",
-        price: 150,
-        img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/157.png",
-      },
-      {
-        name: "Totodile",
-        price: 50,
-        img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/158.png",
-      },
-      {
-        name: "Croconaw",
-        price: 100,
-        img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/159.png",
-      },
-      {
-        name: "Feraligatr",
-        price: 150,
-        img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/160.png",
-      },
-    ],
-  },
-]
+const POKEMON_PER_PAGE = 6
 
 const MainScreen: React.FC = () => {
   const navigate = useNavigate()
-  const [capturedStates, setCapturedStates] = useState(
-    generations.map((gen) => gen.pokemons.map(() => false)),
-  )
-  const refs = generations.map(() => useRef<HTMLDivElement>(null))
+  const [sections, setSections] = useState<GenerationPokemon[]>([])
+  const [captured, setCaptured] = useState<boolean[][]>([])
+  const [currentPages, setCurrentPages] = useState<number[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const toggleCapture = (genIdx: number, idx: number) => {
-    setCapturedStates((prev) => {
+  useEffect(() => {
+    setLoading(true)
+    fetchPokemonByGeneration()
+      .then((data: GenerationPokemon[]) => {
+        setSections(data)
+        // Inicializa capturas para todos los pokémon
+        setCaptured(data.map((gen) => gen.pokemons.map(() => false)))
+        // Inicializa todas las páginas en 0 (primeros pokémon)
+        setCurrentPages(data.map(() => 0))
+      })
+      .catch((error) => {
+        console.error("Error cargando Pokémon:", error)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }, [])
+
+  const toggle = (sec: number, globalIdx: number) => {
+    setCaptured((prev) => {
       const next = prev.map((arr) => [...arr])
-      next[genIdx][idx] = !next[genIdx][idx]
+      next[sec][globalIdx] = !next[sec][globalIdx]
       return next
     })
   }
 
-  const scroll = (genIdx: number, offset: number) => {
-    const container = refs[genIdx].current
-    if (container) container.scrollBy({ left: offset, behavior: "smooth" })
+  const goToPreviousPage = (generationIndex: number) => {
+    setCurrentPages((prev) => {
+      const newPages = [...prev]
+      if (newPages[generationIndex] > 0) {
+        newPages[generationIndex]--
+      }
+      return newPages
+    })
+  }
+
+  const goToNextPage = (generationIndex: number) => {
+    const generation = sections[generationIndex]
+    const maxPages = Math.ceil(generation.pokemons.length / POKEMON_PER_PAGE)
+
+    setCurrentPages((prev) => {
+      const newPages = [...prev]
+      if (newPages[generationIndex] < maxPages - 1) {
+        newPages[generationIndex]++
+      }
+      return newPages
+    })
+  }
+
+  const getPokemonForCurrentPage = (
+    generation: GenerationPokemon,
+    pageIndex: number,
+  ) => {
+    const start = pageIndex * POKEMON_PER_PAGE
+    const end = start + POKEMON_PER_PAGE
+    return generation.pokemons.slice(start, end)
+  }
+
+  const getTotalCapturedCount = () => {
+    return captured.flat().filter(Boolean).length
+  }
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          fontSize: "1.5rem",
+        }}
+      >
+        Cargando Pokémon...
+      </div>
+    )
+  }
+
+  if (!sections.length) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          fontSize: "1.5rem",
+        }}
+      >
+        Cargando Pokémon...
+      </div>
+    )
   }
 
   return (
@@ -147,6 +123,9 @@ const MainScreen: React.FC = () => {
           alignItems: "center",
           backgroundColor: "#f55151",
           padding: "1rem",
+          position: "sticky",
+          top: 0,
+          zIndex: 1000,
         }}
       >
         <ButtonMain />
@@ -154,65 +133,123 @@ const MainScreen: React.FC = () => {
           type="search"
           placeholder="Buscar..."
           style={{
-            borderRadius: "9999px",
+            borderRadius: 9999,
             border: "none",
             padding: "0.5rem 1rem",
-            width: "300px",
+            width: 300,
           }}
         />
-        <ButtonCarrito count={3} />
+        <ButtonCarrito count={getTotalCapturedCount()} />
       </header>
 
-      <main style={{ padding: "2rem" }}>
-        {generations.map((gen, genIdx) => (
-          <section key={gen.title} style={{ marginBottom: "3rem" }}>
-            <h2 style={{ marginBottom: "1rem", textAlign: "left" }}>
-              {gen.title}
-            </h2>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "1rem",
-              }}
-            >
-              <ButtonLeft onClick={() => scroll(genIdx, -660)} />
+      <main style={{ padding: "2rem", position: "relative" }}>
+        {sections.map((gen, sidx) => {
+          const currentPage = currentPages[sidx] || 0
+          const currentPokemon = getPokemonForCurrentPage(gen, currentPage)
+          const totalPages = Math.ceil(gen.pokemons.length / POKEMON_PER_PAGE)
 
+          return (
+            <section key={gen.generation} style={{ marginBottom: "3rem" }}>
               <div
-                ref={refs[genIdx]}
                 style={{
                   display: "flex",
-                  gap: "1rem",
-                  overflowX: "auto",
-                  padding: "1rem 0",
-                  scrollSnapType: "x mandatory",
-                  justifyContent: "flex-start",
-                  width: "680px",
-                  margin: "0 auto",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "1rem",
+                }}
+              ></div>
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "2rem",
+                  position: "relative",
+                  width: "100%",
                 }}
               >
-                {gen.pokemons.map((p, i) => (
-                  <div
-                    key={p.name}
-                    style={{ scrollSnapAlign: "center", cursor: "pointer" }}
-                    onClick={() => navigate(`/pokemon/${p.name}`)}
-                  >
-                    <Card
-                      name={p.name}
-                      price={p.price}
-                      img={p.img}
-                      captured={capturedStates[genIdx][i]}
-                      onToggle={() => toggleCapture(genIdx, i)}
-                    />
+                <ButtonLeft onClick={() => goToPreviousPage(sidx)} />
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(6, 1fr)",
+                    gap: "1rem",
+                    width: "100%",
+                    maxWidth: "1400px",
+                    minHeight: "200px", // Para mantener altura consistente
+                  }}
+                >
+                  <div style={{ gridColumn: "1 / -1", marginBottom: "0.5rem" }}>
+                    <h2 style={{ margin: 0 }}>{gen.generation}</h2>
                   </div>
-                ))}
+
+                  {currentPokemon.map((p, localIdx) => {
+                    const globalIdx = currentPage * POKEMON_PER_PAGE + localIdx
+                    return (
+                      <div
+                        key={p.id}
+                        style={{ cursor: "pointer" }}
+                        onClick={() => navigate(`/pokemon/${p.id}`)}
+                      >
+                        <Card
+                          name={p.name}
+                          price={p.cost}
+                          img={p.sprite}
+                          captured={captured[sidx]?.[globalIdx] || false}
+                          onToggle={() => toggle(sidx, globalIdx)}
+                        />
+                      </div>
+                    )
+                  })}
+
+                  {/* Espacios vacíos para mantener el grid consistente */}
+                  {Array.from({
+                    length: POKEMON_PER_PAGE - currentPokemon.length,
+                  }).map((_, idx) => (
+                    <div key={`empty-${idx}`} style={{ minHeight: "200px" }} />
+                  ))}
+                </div>
+
+                <ButtonRight onClick={() => goToNextPage(sidx)} />
               </div>
 
-              <ButtonRight onClick={() => scroll(genIdx, 660)} />
-            </div>
-          </section>
-        ))}
+              {/* Indicador de páginas */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                  marginTop: "1rem",
+                }}
+              >
+                {Array.from({ length: totalPages }).map((_, pageIdx) => (
+                  <button
+                    key={pageIdx}
+                    onClick={() =>
+                      setCurrentPages((prev) => {
+                        const newPages = [...prev]
+                        newPages[sidx] = pageIdx
+                        return newPages
+                      })
+                    }
+                    style={{
+                      width: "10px",
+                      height: "10px",
+                      borderRadius: "50%",
+                      border: "none",
+                      backgroundColor:
+                        pageIdx === currentPage ? "#f55151" : "#ccc",
+                      cursor: "pointer",
+                      transition: "background-color 0.2s",
+                    }}
+                  />
+                ))}
+              </div>
+            </section>
+          )
+        })}
       </main>
     </div>
   )

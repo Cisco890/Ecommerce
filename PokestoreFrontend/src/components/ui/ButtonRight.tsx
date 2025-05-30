@@ -1,4 +1,5 @@
 import React from "react"
+import rightarrow from "../../assets/rightarrow.png"
 
 interface ButtonRightProps {
   onClick?: () => void
@@ -10,7 +11,7 @@ const ButtonRight: React.FC<ButtonRightProps> = ({ onClick }) => (
     onClick={onClick}
     aria-label="Siguiente"
   >
-    <span>→</span>
+    <img src={rightarrow} alt="Siguiente" />
   </button>
 )
 
