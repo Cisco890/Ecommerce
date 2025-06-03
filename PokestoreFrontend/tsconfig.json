@@ -1,14 +1,31 @@
 {
   "compilerOptions": {
-    "composite": true,
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM"], // DOM es necesario para JSX/TSX
+    "jsx": "react-jsx", // JSX moderno
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "strict": true,
+    "skipLibCheck": true, // ❌ ignora chequeo de tipos en node_modules
+    "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
-    "jsx": "react-jsx",
-    "noEmit": false
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true, // no genera archivos .js al compilar
+    "baseUrl": ".",
+    "paths": {
+      // Si usas alias, decláralos aquí. Ejemplo:
+      // "@components/*": ["src/components/*"]
+    }
   },
-  "files": [],
-  "include": ["src"],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
+  "include": ["src"], // Solo procesa lo que esté en /src
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/stories", // Excluye historias de Storybook
+    "**/*.stories.tsx", // Excluye archivos .stories.tsx
+    "**/*.test.ts", // Excluye tests
+    "**/*.spec.ts", // Excluye tests
+    "jest.setup.js" // Excluye tu setup de Jest
   ]
 }
