@@ -1,0 +1,187 @@
+/* ====== 1. CONTENEDOR PRINCIPAL ====== */
+.detail-content {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.detail-loading {
+  padding: 2rem;
+  text-align: center;
+}
+
+/* ====== 2. BLOQUE SUPERIOR: IMAGEN + DATOS ====== */
+.detail-top {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* Imagen */
+.detail-image {
+  width: 250px;
+  height: auto;
+}
+
+/* Contenedor de texto */
+.detail-info {
+  flex: 1;
+  text-align: left;
+}
+
+/* Título y descripción */
+.detail-info h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+.detail-desc {
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+.detail-stats {
+  margin-bottom: 1rem;
+}
+
+/* Botones de Like y Estrella */
+.detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* ====== 3. BOTÓN “CAPTURAR” A ANCHO COMPLETO ====== */
+.capture-button-wrapper {
+  margin: 1.5rem 0;
+}
+.capture-button-wrapper .btn {
+  width: 100%;
+  max-width: 400px;
+  display: block;
+  margin: 0 auto;
+}
+
+/* ====== 4. EVOLUCIONES ====== */
+.evolutions-section {
+  margin-top: 2rem;
+  text-align: center;
+}
+.evolutions-section h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Contenedor de tarjetas evolutivas */
+.evolutions-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Cada tarjeta evolutiva */
+.evolution-item {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Aumentamos un poco el espacio inferior para que el botón de Card se vea */
+  padding-bottom: 0.5rem;
+  min-width: 200px;
+  max-width: 220px;
+  margin-bottom: 1rem;
+}
+
+/* ====== 5. TABLET / MÓVIL GRANDO (≤ 768px) ====== */
+@media (max-width: 768px) {
+  .detail-top {
+    flex-direction: column;
+    align-items: center;
+  }
+  .detail-image {
+    width: 200px;
+    margin-bottom: 1rem;
+  }
+  .detail-info h1 {
+    font-size: 1.75rem;
+  }
+  .detail-actions {
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+  .capture-button-wrapper .btn {
+    max-width: 100%;
+  }
+  .evolution-item {
+    /* Mostramos dos evoluciones por fila cuando quepan */
+    min-width: 45%;
+    max-width: 45%;
+  }
+}
+
+/* ====== 6. MÓVIL MEDIANO (≤ 425px) ====== */
+@media (max-width: 425px) {
+  .detail-content {
+    padding: 1rem;
+  }
+  .detail-top {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  .detail-image {
+    width: 150px;
+  }
+  .detail-info h1 {
+    font-size: 1.5rem;
+  }
+  .detail-desc {
+    font-size: 0.95rem;
+  }
+  .detail-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .capture-button-wrapper .btn {
+    font-size: 0.95rem;
+    padding: 0.6rem 1rem;
+  }
+  .evolutions-container {
+    gap: 0.5rem;
+  }
+  .evolution-item {
+    min-width: 70%;
+    max-width: 70%;
+  }
+}
+
+/* ====== 7. MÓVIL PEQUEÑO (≤ 320px) ====== */
+@media (max-width: 320px) {
+  .detail-top {
+    gap: 0.5rem;
+  }
+  .detail-image {
+    width: 120px;
+  }
+  .detail-info h1 {
+    font-size: 1.25rem;
+  }
+  .detail-desc {
+    font-size: 0.9rem;
+  }
+  .detail-actions {
+    gap: 0.25rem;
+  }
+  .capture-button-wrapper .btn {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.8rem;
+  }
+  .evolutions-container {
+    gap: 0.3rem;
+  }
+  .evolution-item {
+    min-width: 90%;
+    max-width: 90%;
+  }
+}

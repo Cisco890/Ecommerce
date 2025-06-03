@@ -1,0 +1,162 @@
+/* src/pages/CartScreen.css */
+
+/* ====== 1. CONTENEDOR PRINCIPAL ====== */
+.cart-screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ====== 2. MAIN CONTENT ====== */
+.cart-content {
+  padding: 2rem;
+  flex: 1;
+}
+
+/* ====== 3. SECCIÓN DEL CARRITO ====== */
+.cart-section {
+  margin-bottom: 3rem;
+}
+
+/* Título */
+.cart-title h2 {
+  margin: 0 0 1rem 0;
+  font-size: 2rem;
+}
+
+/* ====== 4. GRID DE PRODUCTOS ====== */
+.cart-grid-container {
+  width: 100%;
+  overflow-x: auto; /* Permite desbordar horizontal en móviles */
+}
+
+.cart-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1rem;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.cart-item-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+/* Slots vacíos para mantener el grid consistente */
+.cart-empty-slot {
+  min-height: 200px;
+}
+
+/* Mensaje carrito vacío */
+.cart-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+.cart-empty-subtext {
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* ====== 5. RESUMEN DEL CARRITO ====== */
+.cart-summary-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.cart-summary {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+.cart-summary h3 {
+  margin: 0 0 1rem 0;
+  color: #333;
+}
+
+.cart-summary-details p {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.cart-summary-total {
+  font-size: 1.3rem;
+  color: #f55151;
+}
+
+.cart-liberar-wrapper {
+  margin-top: 1rem;
+}
+
+/* ====== 6. RESPONSIVE: TABLET / MÓVIL GRANDES (≤ 1024px) ====== */
+@media (max-width: 1024px) {
+  .cart-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ====== 7. RESPONSIVE: MÓVIL MEDIANO (≤ 768px) ====== */
+@media (max-width: 768px) {
+  .cart-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ====== 8. RESPONSIVE: MÓVIL PEQUEÑO (≤ 425px) ====== */
+@media (max-width: 425px) {
+  .cart-content {
+    padding: 1rem;
+  }
+  .cart-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  .cart-item-wrapper,
+  .cart-empty-slot {
+    min-width: 80%;
+  }
+  .cart-title h2 {
+    font-size: 1.5rem;
+  }
+  .cart-summary {
+    padding: 1rem;
+    max-width: 90%;
+  }
+  .cart-summary-details p {
+    font-size: 1rem;
+  }
+  .cart-summary-total {
+    font-size: 1.2rem;
+  }
+}
+
+/* ====== 9. RESPONSIVE: MÓVIL MUY PEQUEÑO (≤ 320px) ====== */
+@media (max-width: 320px) {
+  .cart-grid {
+    min-width: 90%;
+  }
+  .cart-title h2 {
+    font-size: 1.25rem;
+  }
+  .cart-summary h3 {
+    font-size: 1.25rem;
+  }
+  .cart-summary-details p {
+    font-size: 0.95rem;
+  }
+  .cart-summary-total {
+    font-size: 1.1rem;
+  }
+}

@@ -1,6 +1,4 @@
-/* MainScreen.css */
-
-/* ========== 1. HEADER ========= */
+/* Header */
 .main-header {
   display: flex;
   justify-content: space-between;
@@ -12,7 +10,6 @@
   z-index: 1000;
 }
 
-/* En pantallas muy estrechas, apilamos el header */
 @media (max-width: 480px) {
   .main-header {
     flex-direction: column;
@@ -24,7 +21,7 @@
   }
 }
 
-/* Estilo para pantalla de carga */
+/* Loading screen */
 .loading-screen {
   display: flex;
   justify-content: center;
@@ -33,18 +30,26 @@
   font-size: 1.5rem;
 }
 
-/* ========== 2. CONTENEDOR PRINCIPAL ========= */
+/* Main content */
 .main-content {
   padding: 2rem;
   position: relative;
 }
 
-/* Sección por cada generación */
+/* Generation section */
 .gen-section {
   margin-bottom: 3rem;
 }
 
-/* ========== 3. SLIDER CON GRID ========== */
+.gen-heading {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  text-transform: capitalize;
+  color: #333;
+  text-align: center;
+}
+
+/* Slider container */
 .slider-container {
   display: flex;
   align-items: center;
@@ -55,7 +60,7 @@
   overflow: hidden;
 }
 
-/* Flechas de navegación */
+/* Navigation arrows */
 .slider-arrow {
   background: transparent;
   border: none;
@@ -66,14 +71,12 @@
   height: auto;
 }
 
-/* Flechas un poco más pequeñas en pantallas medianas */
 @media (max-width: 1024px) {
   .slider-arrow img {
     width: 40px;
   }
 }
 
-/* En pantallas < 768px, ocultamos las flechas y permitimos desplazamiento horizontal */
 @media (max-width: 768px) {
   .slider-arrow {
     display: none;
@@ -82,17 +85,19 @@
     justify-content: flex-start;
   }
   .pokemon-grid {
-    display: flex !important; /* convertimos a flex para swipe horizontal */
+    display: flex !important;
     flex-wrap: nowrap;
     overflow-x: auto;
     gap: 0.5rem;
+    padding-bottom: 0.5rem;
   }
-  .pokemon-grid > div {
+  .pokemon-grid > .card-wrapper,
+  .pokemon-grid > .empty-card {
     min-width: 45%;
   }
 }
 
-/* ========== 4. GRID DE POKÉMON ========= */
+/* Pokémon grid */
 .pokemon-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -103,21 +108,18 @@
   margin: 0 auto;
 }
 
-/* 4 columnas en pantallas medianas */
 @media (max-width: 1024px) {
   .pokemon-grid {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
-/* 2 columnas en pantallas pequeñas */
 @media (max-width: 768px) {
   .pokemon-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* 1 columna en móviles muy pequeños */
 @media (max-width: 480px) {
   .pokemon-grid {
     grid-template-columns: 1fr;
@@ -125,13 +127,18 @@
   }
 }
 
-/* Título de la generación ocupa toda la fila del grid */
-.gen-title {
-  grid-column: 1 / -1;
-  margin-bottom: 0.5rem;
+/* Card wrapper and empty card */
+.card-wrapper {
+  cursor: pointer;
+  padding-bottom: 0.5rem;
+  min-height: auto !important;
 }
 
-/* ========== 5. INDICADOR DE PÁGINAS ========= */
+.empty-card {
+  min-height: 200px;
+}
+
+/* Page indicator */
 .page-indicator {
   display: flex;
   justify-content: center;
@@ -153,7 +160,7 @@
   background-color: #f55151;
 }
 
-/* ========== 6. AJUSTES ADICIONALES PARA EL CONTENEDOR DEL CARRITO (si lo usas) ========= */
+/* Cart container */
 .cart-container {
   display: flex;
   gap: 1rem;
@@ -168,5 +175,153 @@
   .cart-container {
     gap: 0.5rem;
     padding: 0 0.5rem;
+  }
+}
+
+/* Buttons */
+.card-wrapper .btn {
+  display: block;
+  width: auto;
+  max-width: none;
+  margin: 0.5rem auto 0;
+  text-align: center;
+  border-radius: 6px;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.btn-small {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+}
+
+.card-wrapper .btn:hover {
+  transform: translateY(-1px);
+}
+.card-wrapper .btn:active {
+  transform: translateY(0px) scale(0.98);
+}
+
+.btn-atrapar {
+  background-color: #f55151;
+  color: #fff;
+  border: none;
+}
+.btn-atrapar:hover {
+  background-color: #e03a3a;
+}
+
+.btn-capturado {
+  background-color: #14532d;
+  color: #fff;
+  border: none;
+}
+.btn-capturado:hover {
+  background-color: #0f4324;
+}
+
+@media (max-width: 425px) {
+  .slider-container {
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+  .pokemon-grid {
+    display: flex !important;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  .pokemon-grid > .card-wrapper,
+  .pokemon-grid > .empty-card {
+    min-width: 80%;
+  }
+  .gen-heading {
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .card-wrapper > div {
+    padding: 0.5rem !important;
+  }
+  .card-wrapper > div img {
+    width: 100%;
+    max-height: 120px;
+    object-fit: contain;
+  }
+  .card-wrapper > div p {
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+  }
+  .card-wrapper > div h3 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .card-wrapper .btn {
+    width: auto;
+    max-width: none;
+    margin: 0.5rem auto 0;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.7rem;
+  }
+  .btn-small {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.65rem;
+  }
+  .page-indicator {
+    margin-top: 0.5rem;
+  }
+}
+@media (max-width: 320px) {
+  /* 1) Scroll horizontal permitido */
+  .slider-container {
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+  /* 2) Cada card ocupa casi todo el ancho (90%) */
+  .pokemon-grid {
+    display: flex !important;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  .pokemon-grid > .card-wrapper,
+  .pokemon-grid > .empty-card {
+    min-width: 90%; /* ocupan 90% del ancho a 320px */
+  }
+  /* 3) Texto e imágenes más pequeños */
+  .gen-heading {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .card-wrapper > div {
+    padding: 0.4rem !important;
+  }
+  .card-wrapper > div img {
+    width: 100%;
+    max-height: 100px;
+    object-fit: contain;
+  }
+  .card-wrapper > div p {
+    font-size: 0.85rem;
+    margin-bottom: 0.2rem;
+  }
+  .card-wrapper > div h3 {
+    font-size: 0.95rem;
+    margin-bottom: 0.4rem;
+  }
+  /* 4) Botón más compacto */
+  .card-wrapper .btn {
+    width: auto;
+    max-width: none;
+    margin: 0.4rem auto 0;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.7rem;
+  }
+  .btn-small {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.8rem;
+  }
+  .page-indicator {
+    margin-top: 0.4rem;
   }
 }

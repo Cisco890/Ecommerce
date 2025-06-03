@@ -7,4 +7,7 @@ module.exports = {
     "\\.(jpg|jpeg|png|gif|svg)$": "<rootDir>/src/mocks/fileMock.js",
     "\\.(css|less|scss|sass)$": "<rootDir>/src/mocks/styleMock.js",
   },
+  transform: {
+    "^.+\\.(ts|tsx)$": "ts-jest"
+  }
 }

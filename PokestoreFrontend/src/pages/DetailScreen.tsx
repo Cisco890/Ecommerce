@@ -1,3 +1,4 @@
+// src/pages/DetailScreen.tsx
 import React, { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import ButtonMain from "../components/ui/ButtonMain"
@@ -12,9 +13,8 @@ import {
 } from "../services/api/apidetails"
 import { useContextCarrito } from "../hooks/useContextCarrito"
 import { useLikeRefsContext } from "../hooks/LikeRefsContext"
-import { useEstrellaRefsContext } from "../hooks/EstrellaRefsContext" // <-- Importa el contexto de estrella
-import "../index.css"
-import "../app.css"
+import { useEstrellaRefsContext } from "../hooks/EstrellaRefsContext"
+import "./DetailScreen.css" // Importamos el CSS responsive
 
 interface PokemonDetail {
   id: number
@@ -49,23 +49,18 @@ const DetailScreen: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Usar el contexto del carrito
   const { agregarAlCarrito, removerDelCarrito, estaEnCarrito, totalItems } =
     useContextCarrito()
-
-  // Usar el contexto global de likes
   const { isLiked, toggleLike } = useLikeRefsContext()
-
-  // Usar el contexto global de estrellas
   const { getRating, setRating } = useEstrellaRefsContext()
 
-  // Bloquear scroll al montar
-  useEffect(() => {
-    document.body.style.overflow = "hidden"
-    return () => {
-      document.body.style.overflow = "auto"
-    }
-  }, [])
+  // <-- Eliminamos este useEffect para no bloquear el scroll:
+  // useEffect(() => {
+  //   document.body.style.overflow = "hidden";
+  //   return () => {
+  //     document.body.style.overflow = "auto";
+  //   };
+  // }, []);
 
   useEffect(() => {
     if (!name) return
@@ -98,10 +93,8 @@ const DetailScreen: React.FC = () => {
     loadPokemonData()
   }, [name])
 
-  // Función para manejar captura del Pokémon principal
   const toggleMainPokemonCapture = () => {
     if (!pokemonDetail) return
-
     if (estaEnCarrito(pokemonDetail.id)) {
       removerDelCarrito(pokemonDetail.id)
     } else {
@@ -115,16 +108,15 @@ const DetailScreen: React.FC = () => {
     }
   }
 
-  // Función para manejar captura de evoluciones
-  const toggleEvolutionCapture = (evolution: Evolution) => {
-    if (estaEnCarrito(evolution.id)) {
-      removerDelCarrito(evolution.id)
+  const toggleEvolutionCapture = (evo: Evolution) => {
+    if (estaEnCarrito(evo.id)) {
+      removerDelCarrito(evo.id)
     } else {
       const pokemonParaCarrito = {
-        id: evolution.id,
-        name: evolution.name,
-        price: evolution.price,
-        img: evolution.img,
+        id: evo.id,
+        name: evo.name,
+        price: evo.price,
+        img: evo.img,
       }
       agregarAlCarrito(pokemonParaCarrito)
     }
@@ -148,7 +140,7 @@ const DetailScreen: React.FC = () => {
           <ButtonMain />
           <ButtonCarrito count={totalItems} />
         </header>
-        <main style={{ padding: "2rem", textAlign: "center" }}>
+        <main className="detail-loading">
           <h2>Cargando...</h2>
         </main>
       </div>
@@ -162,7 +154,7 @@ const DetailScreen: React.FC = () => {
           <ButtonMain />
           <ButtonCarrito count={totalItems} />
         </header>
-        <main style={{ padding: "2rem", textAlign: "center" }}>
+        <main className="detail-loading">
           <h2>Error: {error}</h2>
         </main>
       </div>
@@ -176,22 +168,24 @@ const DetailScreen: React.FC = () => {
         <ButtonCarrito count={totalItems} />
       </header>
 
-      <main style={{ padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
-        <div style={{ display: "flex", gap: "2rem", position: "relative" }}>
+      <main className="detail-content">
+        {/* Bloque superior: Imagen + detalles */}
+        <div className="detail-top">
           <img
             src={pokemonDetail.img}
             alt={pokemonDetail.name}
-            style={{ width: 250 }}
+            className="detail-image"
             onError={(e) => {
               ;(e.target as HTMLImageElement).src =
                 `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonDetail.id}.png`
             }}
           />
-          <div style={{ textAlign: "left", flex: 1, position: "relative" }}>
+
+          <div className="detail-info">
             <h1>
               {pokemonDetail.name} — ${pokemonDetail.price}
             </h1>
-            <p>{pokemonDetail.description}</p>
+            <p className="detail-desc">{pokemonDetail.description}</p>
             <p>
               <strong>Tipo:</strong> {pokemonDetail.type}
             </p>
@@ -199,20 +193,12 @@ const DetailScreen: React.FC = () => {
               <strong>Peso:</strong> {pokemonDetail.weight} &nbsp;
               <strong>Altura:</strong> {pokemonDetail.height}
             </p>
-            <p>
+            <p className="detail-stats">
               <strong>Ataque:</strong> {pokemonDetail.stats.Ataque} &nbsp;
               <strong>Defensa:</strong> {pokemonDetail.stats.Defensa} &nbsp;
               <strong>Resistencia:</strong> {pokemonDetail.stats.Resistencia}
             </p>
-            {/* Botón Like y Estrella justo debajo de los stats */}
-            <div
-              style={{
-                margin: "1rem 0",
-                display: "flex",
-                alignItems: "center",
-                gap: "1rem",
-              }}
-            >
+            <div className="detail-actions">
               <ButtonLike
                 size="large"
                 liked={isLiked(pokemonDetail.id)}
@@ -227,37 +213,25 @@ const DetailScreen: React.FC = () => {
         </div>
 
         {/* Botón Capturar */}
-        <ButtonCapturadoDetalles
-          captured={estaEnCarrito(pokemonDetail.id)}
-          fullWidth
-          onClick={toggleMainPokemonCapture}
-        />
+        <div className="capture-button-wrapper">
+          <ButtonCapturadoDetalles
+            captured={estaEnCarrito(pokemonDetail.id)}
+            fullWidth
+            onClick={toggleMainPokemonCapture}
+          />
+        </div>
 
         {/* Evoluciones */}
-        <div style={{ marginTop: "1rem", textAlign: "center" }}>
-          <h3 style={{ marginBottom: "1rem" }}>Evoluciones</h3>
+        <section className="evolutions-section">
+          <h3>Evoluciones</h3>
           {evolutions.length === 0 ? (
             <p>Pokémon en su única forma</p>
           ) : (
-            <div
-              style={{
-                display: "flex",
-                gap: "1rem",
-                justifyContent: "center",
-                flexWrap: "wrap",
-              }}
-            >
+            <div className="evolutions-container">
               {evolutions.map((evo) => (
                 <div
                   key={evo.name}
-                  style={{
-                    cursor: "pointer",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    minWidth: 200, // Mantiene el tamaño de la card
-                    maxWidth: 220,
-                  }}
+                  className="evolution-item"
                   onClick={(e) => {
                     e.stopPropagation()
                     navigate(`/pokemon/${evo.name.toLowerCase()}`)
@@ -268,18 +242,14 @@ const DetailScreen: React.FC = () => {
                     price={evo.price}
                     img={evo.img}
                     captured={estaEnCarrito(evo.id)}
-                    onToggle={() => {
-                      toggleEvolutionCapture(evo)
-                    }}
+                    onToggle={() => toggleEvolutionCapture(evo)}
                   />
-                  {/* Botones de like y estrella eliminados */}
-                  <div style={{ height: 40 }} />{" "}
-                  {/* Espacio para mantener altura */}
+                  <div style={{ height: 40 }} /> {/* espacio para el botón */}
                 </div>
               ))}
             </div>
           )}
-        </div>
+        </section>
       </main>
     </div>
   )
