@@ -1,4 +1,3 @@
-// src/pages/MainScreen.tsx
 import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import ButtonMain from "../components/ui/ButtonMain"
@@ -8,6 +7,7 @@ import ButtonRight from "../components/ui/ButtonRight"
 import Card from "../components/Card"
 import { fetchPokemonByGeneration } from "../services/api/apimain"
 import type { GenerationPokemon } from "../services/api/apimain"
+import { useContextCarrito } from "../hooks/useContextCarrito"
 import "../index.css"
 import "../app.css"
 
@@ -16,18 +16,18 @@ const POKEMON_PER_PAGE = 6
 const MainScreen: React.FC = () => {
   const navigate = useNavigate()
   const [sections, setSections] = useState<GenerationPokemon[]>([])
-  const [captured, setCaptured] = useState<boolean[][]>([])
   const [currentPages, setCurrentPages] = useState<number[]>([])
   const [loading, setLoading] = useState(true)
+
+  // Usar el contexto del carrito
+  const { agregarAlCarrito, removerDelCarrito, estaEnCarrito, totalItems } =
+    useContextCarrito()
 
   useEffect(() => {
     setLoading(true)
     fetchPokemonByGeneration()
       .then((data: GenerationPokemon[]) => {
         setSections(data)
-        // Inicializa capturas para todos los pokémon
-        setCaptured(data.map((gen) => gen.pokemons.map(() => false)))
-        // Inicializa todas las páginas en 0 (primeros pokémon)
         setCurrentPages(data.map(() => 0))
       })
       .catch((error) => {
@@ -38,12 +38,21 @@ const MainScreen: React.FC = () => {
       })
   }, [])
 
-  const toggle = (sec: number, globalIdx: number) => {
-    setCaptured((prev) => {
-      const next = prev.map((arr) => [...arr])
-      next[sec][globalIdx] = !next[sec][globalIdx]
-      return next
-    })
+  // Función para manejar captura/liberación de Pokémon
+  // eslint-disable-next-line @ @typescript-eslint/no-explicit-any
+  const toggleCapture = (pokemon: any) => {
+    if (estaEnCarrito(pokemon.id)) {
+      removerDelCarrito(pokemon.id)
+    } else {
+      // Preparar el objeto pokemon para el carrito
+      const pokemonParaCarrito = {
+        id: pokemon.id,
+        name: pokemon.name,
+        price: pokemon.cost || 50, // Usar cost o un precio por defecto
+        img: pokemon.sprite,
+      }
+      agregarAlCarrito(pokemonParaCarrito)
+    }
   }
 
   const goToPreviousPage = (generationIndex: number) => {
@@ -76,10 +85,6 @@ const MainScreen: React.FC = () => {
     const start = pageIndex * POKEMON_PER_PAGE
     const end = start + POKEMON_PER_PAGE
     return generation.pokemons.slice(start, end)
-  }
-
-  const getTotalCapturedCount = () => {
-    return captured.flat().filter(Boolean).length
   }
 
   if (loading) {
@@ -129,17 +134,8 @@ const MainScreen: React.FC = () => {
         }}
       >
         <ButtonMain />
-        <input
-          type="search"
-          placeholder="Buscar..."
-          style={{
-            borderRadius: 9999,
-            border: "none",
-            padding: "0.5rem 1rem",
-            width: 300,
-          }}
-        />
-        <ButtonCarrito count={getTotalCapturedCount()} />
+
+        <ButtonCarrito count={totalItems} />
       </header>
 
       <main style={{ padding: "2rem", position: "relative" }}>
@@ -185,8 +181,7 @@ const MainScreen: React.FC = () => {
                     <h2 style={{ margin: 0 }}>{gen.generation}</h2>
                   </div>
 
-                  {currentPokemon.map((p, localIdx) => {
-                    const globalIdx = currentPage * POKEMON_PER_PAGE + localIdx
+                  {currentPokemon.map((p) => {
                     return (
                       <div
                         key={p.id}
@@ -197,8 +192,10 @@ const MainScreen: React.FC = () => {
                           name={p.name}
                           price={p.cost}
                           img={p.sprite}
-                          captured={captured[sidx]?.[globalIdx] || false}
-                          onToggle={() => toggle(sidx, globalIdx)}
+                          captured={estaEnCarrito(p.id)}
+                          onToggle={() => {
+                            toggleCapture(p)
+                          }}
                         />
                       </div>
                     )

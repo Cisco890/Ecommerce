@@ -16,7 +16,7 @@
   max-width: none;
 }
 
-/* Variante “Atrapar” (rojo) */
+/* Variante "Atrapar" (rojo) */
 .btn-atrapar {
   background-color: #f55151;
   color: #fff;
@@ -25,7 +25,7 @@
   background-color: #e03a3a;
 }
 
-/* Variante “Capturado” (verde) */
+/* Variante "Capturado" (verde) */
 .btn-capturado {
   background-color: #14532d;
   color: #fff;
@@ -33,6 +33,7 @@
 .btn-capturado:hover {
   background-color: #0f4324;
 }
+
 /* ButtonMain*/
 .btn-main {
   background: none;
@@ -71,7 +72,7 @@
 
 /* Botón Confirmar Captura */
 .btn-confirmar-captura {
-  background-color: #f55151;
+  background-color: #14532d;
   color: #fff;
   border-radius: 9999px;
   padding: 1rem 2rem;
@@ -86,9 +87,111 @@
   display: block;
 }
 .btn-confirmar-captura:hover {
+  background-color: #0f4324;
+}
+
+/* Botón Liberar */
+.btn-liberar {
+  background-color: #f55151;
+  color: #fff;
+  border-radius: 9999px;
+  /* Ancho ajustado al contenido en lugar de 50% */
+  padding: 0.75rem 1.5rem;
+  max-width: none;
+  border: none;
+  font-size: 1rem; /* Texto un poco más pequeño */
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2; /* Mejor espaciado entre líneas si hay texto en 2 renglones */
+  cursor: pointer;
+}
+
+.btn-liberar:hover {
   background-color: #e03a3a;
 }
 
+/* ===== BUTTON LIKE STYLES ===== */
+.btn-like {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  color: #666;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-like:hover {
+  background-color: rgba(255, 105, 180, 0.1);
+  transform: scale(1.1);
+}
+
+.btn-like:active {
+  transform: scale(0.95);
+}
+
+/* Corazón SVG */
+.btn-like__heart {
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* Estado liked - corazón relleno */
+.btn-like--liked .btn-like__heart {
+  filter: drop-shadow(0 2px 8px rgba(255, 105, 180, 0.3));
+}
+
+.btn-like--liked:hover {
+  background-color: rgba(255, 105, 180, 0.15);
+}
+
+/* Tamaños del botón like */
+.btn-like--small {
+  padding: 0.25rem;
+}
+
+.btn-like--small .btn-like__heart {
+  width: 16px;
+  height: 16px;
+}
+
+.btn-like--medium {
+  padding: 0.5rem;
+}
+
+.btn-like--medium .btn-like__heart {
+  width: 24px;
+  height: 24px;
+}
+
+.btn-like--large {
+  padding: 0.75rem;
+}
+
+.btn-like--large .btn-like__heart {
+  width: 32px;
+  height: 32px;
+}
+
+/* Estados de accesibilidad para like button */
+
+.btn-like:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-like:disabled:hover {
+  background: none;
+  transform: none;
+}
+
+/* ===== CARD CARRITO STYLES ===== */
 /* Estilo tipo Card para CardCarrito */
 .card-carrito {
   width: 200px; /* igual que las cards normales */
@@ -156,6 +259,7 @@
   cursor: pointer;
 }
 
+/* ===== CART CONTAINER STYLES ===== */
 /* Asegura que la lista de cards esté centrada y scrollable */
 .cart-container {
   display: flex;
@@ -169,6 +273,7 @@
 .cart-container > * {
   scroll-snap-align: center;
 }
+
 /* Slider con 6 cards visibles y overflow oculto */
 .cart-container {
   display: flex;
@@ -177,7 +282,43 @@
   margin: 0 auto;
   scroll-snap-type: x mandatory;
 }
+
 .cart-container > div {
   flex: 0 0 auto;
   scroll-snap-align: smooth;
+}
+/* ===== BUTTON ESTRELLA STYLES ===== */
+.btn-estrella {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.btn-estrella__star {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: opacity 0.2s ease;
+}
+
+.btn-estrella__star:hover {
+  opacity: 0.7;
+}
+
+.btn-estrella__icon {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: #ffd700;
+  stroke-width: 2;
+  transition: fill 0.2s ease;
+}
+
+.btn-estrella__star--filled .btn-estrella__icon {
+  fill: #ffd700;
+}
+
+.btn-estrella__star:hover .btn-estrella__icon {
+  fill: rgba(255, 215, 0, 0.3);
 }

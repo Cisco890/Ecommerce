@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-
 import ButtonMain from "../components/ui/ButtonMain"
 import ButtonCarrito from "../components/ui/ButtonCarrito"
 import ButtonCapturadoDetalles from "../components/ui/ButtonCapturadoDetalles"
+import ButtonLike from "../components/ui/ButtonLike"
+import ButtonEstrella from "../components/ui/ButtonEstrella"
 import Card from "../components/Card"
 import {
   fetchPokemonDetailByName,
   fetchPokemonEvolutionsByName,
 } from "../services/api/apidetails"
+import { useContextCarrito } from "../hooks/useContextCarrito"
+import { useLikeRefsContext } from "../hooks/LikeRefsContext"
+import { useEstrellaRefsContext } from "../hooks/EstrellaRefsContext" // <-- Importa el contexto de estrella
 import "../index.css"
 import "../app.css"
 
@@ -45,8 +49,15 @@ const DetailScreen: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const [captured, setCaptured] = useState(false)
-  const [evoCaptured, setEvoCaptured] = useState<boolean[]>([])
+  // Usar el contexto del carrito
+  const { agregarAlCarrito, removerDelCarrito, estaEnCarrito, totalItems } =
+    useContextCarrito()
+
+  // Usar el contexto global de likes
+  const { isLiked, toggleLike } = useLikeRefsContext()
+
+  // Usar el contexto global de estrellas
+  const { getRating, setRating } = useEstrellaRefsContext()
 
   // Bloquear scroll al montar
   useEffect(() => {
@@ -76,7 +87,6 @@ const DetailScreen: React.FC = () => {
           (evo) => evo.name.toLowerCase() !== detail.name.toLowerCase(),
         )
         setEvolutions(filtered)
-        setEvoCaptured(filtered.map(() => false))
       } catch (err) {
         setError("Error al cargar los datos del Pokémon")
         console.error(err)
@@ -88,12 +98,36 @@ const DetailScreen: React.FC = () => {
     loadPokemonData()
   }, [name])
 
-  const toggleEvo = (idx: number) => {
-    setEvoCaptured((prev) => {
-      const next = [...prev]
-      next[idx] = !next[idx]
-      return next
-    })
+  // Función para manejar captura del Pokémon principal
+  const toggleMainPokemonCapture = () => {
+    if (!pokemonDetail) return
+
+    if (estaEnCarrito(pokemonDetail.id)) {
+      removerDelCarrito(pokemonDetail.id)
+    } else {
+      const pokemonParaCarrito = {
+        id: pokemonDetail.id,
+        name: pokemonDetail.name,
+        price: pokemonDetail.price,
+        img: pokemonDetail.img,
+      }
+      agregarAlCarrito(pokemonParaCarrito)
+    }
+  }
+
+  // Función para manejar captura de evoluciones
+  const toggleEvolutionCapture = (evolution: Evolution) => {
+    if (estaEnCarrito(evolution.id)) {
+      removerDelCarrito(evolution.id)
+    } else {
+      const pokemonParaCarrito = {
+        id: evolution.id,
+        name: evolution.name,
+        price: evolution.price,
+        img: evolution.img,
+      }
+      agregarAlCarrito(pokemonParaCarrito)
+    }
   }
 
   const headerStyle = {
@@ -112,17 +146,7 @@ const DetailScreen: React.FC = () => {
       <div>
         <header style={headerStyle}>
           <ButtonMain />
-          <input
-            type="search"
-            placeholder="Buscar..."
-            style={{
-              borderRadius: 9999,
-              border: "none",
-              padding: "0.5rem 1rem",
-              width: 300,
-            }}
-          />
-          <ButtonCarrito count={3} />
+          <ButtonCarrito count={totalItems} />
         </header>
         <main style={{ padding: "2rem", textAlign: "center" }}>
           <h2>Cargando...</h2>
@@ -136,17 +160,7 @@ const DetailScreen: React.FC = () => {
       <div>
         <header style={headerStyle}>
           <ButtonMain />
-          <input
-            type="search"
-            placeholder="Buscar..."
-            style={{
-              borderRadius: "9999px",
-              border: "none",
-              padding: "0.5rem 1rem",
-              width: "300px",
-            }}
-          />
-          <ButtonCarrito count={3} />
+          <ButtonCarrito count={totalItems} />
         </header>
         <main style={{ padding: "2rem", textAlign: "center" }}>
           <h2>Error: {error}</h2>
@@ -159,21 +173,11 @@ const DetailScreen: React.FC = () => {
     <div>
       <header style={headerStyle}>
         <ButtonMain />
-        <input
-          type="search"
-          placeholder="Buscar..."
-          style={{
-            borderRadius: "9999px",
-            border: "none",
-            padding: "0.5rem 1rem",
-            width: "300px",
-          }}
-        />
-        <ButtonCarrito count={3} />
+        <ButtonCarrito count={totalItems} />
       </header>
 
       <main style={{ padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
-        <div style={{ display: "flex", gap: "2rem" }}>
+        <div style={{ display: "flex", gap: "2rem", position: "relative" }}>
           <img
             src={pokemonDetail.img}
             alt={pokemonDetail.name}
@@ -183,7 +187,7 @@ const DetailScreen: React.FC = () => {
                 `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonDetail.id}.png`
             }}
           />
-          <div style={{ textAlign: "left" }}>
+          <div style={{ textAlign: "left", flex: 1, position: "relative" }}>
             <h1>
               {pokemonDetail.name} — ${pokemonDetail.price}
             </h1>
@@ -200,13 +204,33 @@ const DetailScreen: React.FC = () => {
               <strong>Defensa:</strong> {pokemonDetail.stats.Defensa} &nbsp;
               <strong>Resistencia:</strong> {pokemonDetail.stats.Resistencia}
             </p>
+            {/* Botón Like y Estrella justo debajo de los stats */}
+            <div
+              style={{
+                margin: "1rem 0",
+                display: "flex",
+                alignItems: "center",
+                gap: "1rem",
+              }}
+            >
+              <ButtonLike
+                size="large"
+                liked={isLiked(pokemonDetail.id)}
+                onToggle={() => toggleLike(pokemonDetail.id)}
+              />
+              <ButtonEstrella
+                rating={getRating(pokemonDetail.id)}
+                onRatingChange={(rating) => setRating(pokemonDetail.id, rating)}
+              />
+            </div>
           </div>
         </div>
 
+        {/* Botón Capturar */}
         <ButtonCapturadoDetalles
-          captured={captured}
+          captured={estaEnCarrito(pokemonDetail.id)}
           fullWidth
-          onClick={() => setCaptured((v) => !v)}
+          onClick={toggleMainPokemonCapture}
         />
 
         {/* Evoluciones */}
@@ -223,19 +247,34 @@ const DetailScreen: React.FC = () => {
                 flexWrap: "wrap",
               }}
             >
-              {evolutions.map((evo, i) => (
+              {evolutions.map((evo) => (
                 <div
                   key={evo.name}
-                  style={{ cursor: "pointer" }}
-                  onClick={() => navigate(`/pokemon/${evo.name.toLowerCase()}`)}
+                  style={{
+                    cursor: "pointer",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    minWidth: 200, // Mantiene el tamaño de la card
+                    maxWidth: 220,
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    navigate(`/pokemon/${evo.name.toLowerCase()}`)
+                  }}
                 >
                   <Card
                     name={evo.name}
                     price={evo.price}
                     img={evo.img}
-                    captured={evoCaptured[i]}
-                    onToggle={() => toggleEvo(i)}
+                    captured={estaEnCarrito(evo.id)}
+                    onToggle={() => {
+                      toggleEvolutionCapture(evo)
+                    }}
                   />
+                  {/* Botones de like y estrella eliminados */}
+                  <div style={{ height: 40 }} />{" "}
+                  {/* Espacio para mantener altura */}
                 </div>
               ))}
             </div>

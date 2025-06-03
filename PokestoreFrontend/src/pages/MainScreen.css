@@ -1,0 +1,172 @@
+/* MainScreen.css */
+
+/* ========== 1. HEADER ========= */
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f55151;
+  padding: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* En pantallas muy estrechas, apilamos el header */
+@media (max-width: 480px) {
+  .main-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .main-header button {
+    font-size: 0.9rem;
+    padding: 0.5rem;
+  }
+}
+
+/* Estilo para pantalla de carga */
+.loading-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.5rem;
+}
+
+/* ========== 2. CONTENEDOR PRINCIPAL ========= */
+.main-content {
+  padding: 2rem;
+  position: relative;
+}
+
+/* Sección por cada generación */
+.gen-section {
+  margin-bottom: 3rem;
+}
+
+/* ========== 3. SLIDER CON GRID ========== */
+.slider-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Flechas de navegación */
+.slider-arrow {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.slider-arrow img {
+  width: 50px;
+  height: auto;
+}
+
+/* Flechas un poco más pequeñas en pantallas medianas */
+@media (max-width: 1024px) {
+  .slider-arrow img {
+    width: 40px;
+  }
+}
+
+/* En pantallas < 768px, ocultamos las flechas y permitimos desplazamiento horizontal */
+@media (max-width: 768px) {
+  .slider-arrow {
+    display: none;
+  }
+  .slider-container {
+    justify-content: flex-start;
+  }
+  .pokemon-grid {
+    display: flex !important; /* convertimos a flex para swipe horizontal */
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 0.5rem;
+  }
+  .pokemon-grid > div {
+    min-width: 45%;
+  }
+}
+
+/* ========== 4. GRID DE POKÉMON ========= */
+.pokemon-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1rem;
+  width: 100%;
+  max-width: 1400px;
+  min-height: 200px;
+  margin: 0 auto;
+}
+
+/* 4 columnas en pantallas medianas */
+@media (max-width: 1024px) {
+  .pokemon-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* 2 columnas en pantallas pequeñas */
+@media (max-width: 768px) {
+  .pokemon-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 1 columna en móviles muy pequeños */
+@media (max-width: 480px) {
+  .pokemon-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}
+
+/* Título de la generación ocupa toda la fila del grid */
+.gen-title {
+  grid-column: 1 / -1;
+  margin-bottom: 0.5rem;
+}
+
+/* ========== 5. INDICADOR DE PÁGINAS ========= */
+.page-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: none;
+  background-color: #ccc;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dot.active {
+  background-color: #f55151;
+}
+
+/* ========== 6. AJUSTES ADICIONALES PARA EL CONTENEDOR DEL CARRITO (si lo usas) ========= */
+.cart-container {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+
+@media (max-width: 768px) {
+  .cart-container {
+    gap: 0.5rem;
+    padding: 0 0.5rem;
+  }
+}

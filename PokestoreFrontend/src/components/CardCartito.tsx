@@ -6,6 +6,7 @@ import ButtonBasura from "./ui/ButtonBasura"
 interface CardCarritoProps {
   name: string
   price: number
+  originalPrice?: number
   img: string
   quantity: number
   onIncrease: () => void
@@ -16,6 +17,7 @@ interface CardCarritoProps {
 const CardCarrito: React.FC<CardCarritoProps> = ({
   name,
   price,
+  originalPrice,
   img,
   quantity,
   onIncrease,
@@ -25,7 +27,20 @@ const CardCarrito: React.FC<CardCarritoProps> = ({
   <div className="card-carrito">
     <img src={img} alt={name} className="card-carrito__img" />
     <div className="card-carrito__info">
-      <p className="card-carrito__price">${price}</p>
+      <p className="card-carrito__price">
+        {originalPrice && originalPrice !== price && (
+          <span
+            style={{
+              textDecoration: "line-through",
+              color: "#888",
+              marginRight: 6,
+            }}
+          >
+            ${originalPrice}
+          </span>
+        )}
+        ${price}
+      </p>
       <h3 className="card-carrito__name">{name}</h3>
     </div>
     <div className="card-carrito__controls">

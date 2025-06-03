@@ -158,6 +158,7 @@ export async function fetchPokemonDetailByName(
     )
     if (!speciesRes.ok) return null
     const speciesData = await speciesRes.json()
+    /* eslint-disable @typescript-eslint/no-explicit-any */
 
     // Determinar etapa evolutiva
     let evolutionStage: "primera" | "segunda" | "tercera" | "legendario" =
@@ -247,7 +248,7 @@ export async function fetchPokemonDetailByName(
       name:
         pokemonData.name.charAt(0).toUpperCase() + pokemonData.name.slice(1),
       price: calculateCost(evolutionStage),
-      img: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonData.id}.png`,
+      img: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonData.id}.png`,
       description: description
         .replace(/\f/g, "\n")
         .replace(/\u00ad\n/g, "")

@@ -1,4 +1,4 @@
-// src/services/api/apimain.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 const BASE_URL = "https://pokeapi.co/api/v2"
 
@@ -48,20 +48,83 @@ const legendaryPokemonIds = new Set<number>([
   905, 1007, 1008, 1009, 1010,
 ])
 
+// Cache global para evoluciones y especies
+const evolutionCache = new Map<
+  number,
+  "primera" | "segunda" | "tercera" | "legendario"
+>()
+const speciesCache = new Map<string, any>()
+const evolutionChainCache = new Map<string, any>()
+
 /**
- * Obtiene el listado de generaciones disponibles en la API.
+ * Delay mínimo optimizado
+ */
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+/**
+ * Fetch optimizado con cache y retry rápido
+ */
+async function fastFetch(
+  url: string,
+  cacheMap?: Map<string, any>,
+): Promise<any> {
+  // Verificar cache si existe
+  if (cacheMap && cacheMap.has(url)) {
+    return cacheMap.get(url)
+  }
+
+  try {
+    const response = await fetch(url, {
+      headers: { Accept: "application/json" },
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`)
+    }
+
+    const data = await response.json()
+
+    // Guardar en cache si existe
+    if (cacheMap) {
+      cacheMap.set(url, data)
+    }
+
+    return data
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+  } catch (_error) {
+    // Un solo retry rápido
+    await delay(200)
+    const response = await fetch(url, {
+      headers: { Accept: "application/json" },
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} after retry`)
+    }
+
+    const data = await response.json()
+    if (cacheMap) {
+      cacheMap.set(url, data)
+    }
+
+    return data
+  }
+}
+
+/**
+ * Obtiene el listado de generaciones
  */
 async function fetchGenerationsList(): Promise<
   { name: string; url: string }[]
 > {
-  const res = await fetch(`${BASE_URL}/generation?limit=100`)
-  if (!res.ok) throw new Error(`Error al listar generaciones: ${res.status}`)
-  const data = await res.json()
+  const data = await fastFetch(`${BASE_URL}/generation?limit=100`)
   return data.results
 }
 
 /**
- * Para una URL de especie, extrae el ID numérico.
+ * Extrae ID de URL
  */
 function extractIdFromUrl(url: string): number {
   const match = url.match(/\/(\d+)\//)
@@ -69,53 +132,191 @@ function extractIdFromUrl(url: string): number {
 }
 
 /**
- * Obtiene información de la cadena evolutiva de un Pokémon
+ * Estrategia heurística rápida para determinar etapa evolutiva
+ * Basada en patrones de nombres y IDs conocidos
  */
-async function getEvolutionStage(
+function getEvolutionStageHeuristic(
   pokemonId: number,
-): Promise<"primera" | "segunda" | "tercera" | "legendario"> {
-  // Legendarios directos
+  pokemonName: string,
+): "primera" | "segunda" | "tercera" | "legendario" {
+  // Legendarios conocidos
   if (legendaryPokemonIds.has(pokemonId)) {
     return "legendario"
   }
 
-  // Obtener información de especie y cadena evolutiva
-  const speciesRes = await fetch(`${BASE_URL}/pokemon-species/${pokemonId}`)
-  if (!speciesRes.ok) {
-    throw new Error(`Error al obtener especie para ID ${pokemonId}`)
+  // Patrones de nombres que indican evoluciones
+  const name = pokemonName.toLowerCase()
+
+  // Terceras evoluciones comunes (por sufijos/prefijos conocidos)
+  const thirdStagePatterns = [
+    "charizard",
+    "blastoise",
+    "venusaur",
+    "alakazam",
+    "machamp",
+    "golem",
+    "gengar",
+    "typhlosion",
+    "feraligatr",
+    "meganium",
+    "crobat",
+    "ampharos",
+    "bellossom",
+    "blaziken",
+    "swampert",
+    "sceptile",
+    "gardevoir",
+    "slaking",
+    "exploud",
+    "infernape",
+    "empoleon",
+    "torterra",
+    "staraptor",
+    "luxray",
+    "roserade",
+    "serperior",
+    "emboar",
+    "samurott",
+    "stoutland",
+    "simisage",
+    "simisear",
+    "simipour",
+  ]
+
+  // Segundas evoluciones comunes
+  const secondStagePatterns = [
+    "charmeleon",
+    "wartortle",
+    "ivysaur",
+    "kakuna",
+    "metapod",
+    "pidgeotto",
+    "quilava",
+    "croconaw",
+    "bayleef",
+    "flaaffy",
+    "skiploom",
+    "weepinbell",
+    "combusken",
+    "marshtomp",
+    "grovyle",
+    "kirlia",
+    "vigoroth",
+    "loudred",
+    "monferno",
+    "prinplup",
+    "grotle",
+    "staravia",
+    "luxio",
+    "roselia",
+  ]
+
+  if (thirdStagePatterns.includes(name)) {
+    return "tercera"
   }
-  const speciesData = await speciesRes.json()
 
-  const chainUrl = speciesData.evolution_chain?.url
-  if (!chainUrl) {
-    return "primera"
+  if (secondStagePatterns.includes(name)) {
+    return "segunda"
   }
 
-  const evolutionRes = await fetch(chainUrl)
-  if (!evolutionRes.ok) {
-    throw new Error(`Error al obtener cadena evolutiva para ID ${pokemonId}`)
-  }
-  const evolutionData = await evolutionRes.json()
-
-  // Busca profundidad de evolución
-  function findLevel(chain: any, targetId: number, level: number = 1): number {
-    const currentId = extractIdFromUrl(chain.species.url)
-    if (currentId === targetId) return level
-    for (const evo of chain.evolves_to || []) {
-      const found = findLevel(evo, targetId, level + 1)
-      if (found) return found
-    }
-    return 0
+  // Heurística por rango de ID (aproximada)
+  // Los iniciales y sus evoluciones suelen seguir patrones
+  const mod3 = pokemonId % 3
+  if (pokemonId <= 9) {
+    // Primeros iniciales de Kanto
+    if (mod3 === 1) return "primera"
+    if (mod3 === 2) return "segunda"
+    if (mod3 === 0) return "tercera"
   }
 
-  const level = findLevel(evolutionData.chain, pokemonId)
-  if (level === 1) return "primera"
-  if (level === 2) return "segunda"
-  // Si level >=3 tratamos como tercera fase
-  if (level >= 3) return "tercera"
-
-  // Si no se encontró, asumimos primera fase
+  // Por defecto, asumimos primera etapa
   return "primera"
+}
+
+/**
+ * Obtiene etapa evolutiva de forma híbrida (heurística + API selectiva)
+ */
+async function getEvolutionStage(
+  pokemonId: number,
+  pokemonName: string,
+): Promise<"primera" | "segunda" | "tercera" | "legendario"> {
+  // Verificar cache
+  if (evolutionCache.has(pokemonId)) {
+    return evolutionCache.get(pokemonId)!
+  }
+
+  // Usar heurística primero (muy rápido)
+  const heuristicStage = getEvolutionStageHeuristic(pokemonId, pokemonName)
+
+  // Para legendarios, confiar en la heurística
+  if (heuristicStage === "legendario") {
+    evolutionCache.set(pokemonId, "legendario")
+    return "legendario"
+  }
+
+  // Para casos dudosos o nombres no reconocidos, usar API (selectivamente)
+  const shouldUseAPI =
+    pokemonName.includes("unknown") ||
+    pokemonName.includes("forme") ||
+    pokemonId > 800 || // Generaciones nuevas
+    heuristicStage === "primera" // Double-check primeras etapas
+
+  if (shouldUseAPI) {
+    try {
+      // Solo hacer requests para casos específicos
+      const speciesData = await fastFetch(
+        `${BASE_URL}/pokemon-species/${pokemonId}`,
+        speciesCache,
+      )
+
+      const chainUrl = speciesData.evolution_chain?.url
+      if (!chainUrl) {
+        evolutionCache.set(pokemonId, "primera")
+        return "primera"
+      }
+
+      const evolutionData = await fastFetch(chainUrl, evolutionChainCache)
+
+      // Función optimizada para encontrar nivel
+      function findLevel(
+        chain: any,
+        targetId: number,
+        level: number = 1,
+      ): number {
+        const currentId = extractIdFromUrl(chain.species.url)
+        if (currentId === targetId) return level
+
+        for (const evo of chain.evolves_to || []) {
+          const found = findLevel(evo, targetId, level + 1)
+          if (found) return found
+        }
+        return 0
+      }
+
+      const level = findLevel(evolutionData.chain, pokemonId)
+      let stage: "primera" | "segunda" | "tercera" | "legendario"
+
+      if (level === 1) stage = "primera"
+      else if (level === 2) stage = "segunda"
+      else if (level >= 3) stage = "tercera"
+      else stage = heuristicStage // Fallback a heurística
+
+      evolutionCache.set(pokemonId, stage)
+      return stage
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+    } catch (_error) {
+      // Si falla API, usar heurística
+      console.warn(
+        `API fallback para ${pokemonName} (${pokemonId}), usando heurística`,
+      )
+      evolutionCache.set(pokemonId, heuristicStage)
+      return heuristicStage
+    }
+  } else {
+    // Usar heurística directamente
+    evolutionCache.set(pokemonId, heuristicStage)
+    return heuristicStage
+  }
 }
 
 /**
@@ -137,49 +338,110 @@ function calculateCost(
 }
 
 /**
- * Descarga todos los Pokémon de cada generación con sprite y costo evolutivo.
+ * Procesamiento paralelo optimizado
+ */
+async function processInParallel<T, R>(
+  items: T[],
+  processor: (item: T) => Promise<R>,
+  concurrency: number = 15,
+): Promise<R[]> {
+  const results: R[] = []
+
+  for (let i = 0; i < items.length; i += concurrency) {
+    const batch = items.slice(i, i + concurrency)
+
+    const batchResults = await Promise.allSettled(batch.map(processor))
+
+    for (const result of batchResults) {
+      if (result.status === "fulfilled") {
+        results.push(result.value)
+      } else {
+        console.warn("Error en procesamiento:", result.reason)
+      }
+    }
+
+    // Micro delay solo si no es el último lote
+    if (i + concurrency < items.length) {
+      await delay(50) // Solo 50ms
+    }
+  }
+
+  return results
+}
+
+/**
+ * Función principal optimizada
  */
 export async function fetchPokemonByGeneration(): Promise<GenerationPokemon[]> {
-  const gens = await fetchGenerationsList()
+  try {
+    console.log(" Carga rápida iniciada...")
+    const startTime = Date.now()
 
-  const detailed = await Promise.all(
-    gens.map(async (g) => {
-      const res = await fetch(g.url)
-      if (!res.ok) throw new Error(`Error al obtener generación ${g.name}`)
-      return res.json()
-    }),
-  )
+    const gens = await fetchGenerationsList()
+    console.log(`${gens.length} generaciones encontradas`)
 
-  const result = await Promise.all(
-    detailed.map(async (genData: any) => {
-      const speciesList: { name: string; url: string }[] =
-        genData.pokemon_species || []
-      const sorted = speciesList
-        .slice()
-        .sort((a, b) => extractIdFromUrl(a.url) - extractIdFromUrl(b.url))
+    // Obtener detalles de generaciones en paralelo
+    const detailed = await Promise.allSettled(gens.map((g) => fastFetch(g.url)))
 
-      const pokemons = await Promise.all(
-        sorted.map(async (ps) => {
-          const id = extractIdFromUrl(ps.url)
-          const stage = await getEvolutionStage(id)
-          const cost = calculateCost(stage)
-          return {
-            id,
-            name: ps.name,
-            sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
-            cost,
-            evolutionStage: stage,
-          }
-        }),
+    const validGenerations = detailed
+      .filter(
+        (result): result is PromiseFulfilledResult<any> =>
+          result.status === "fulfilled",
       )
+      .map((result) => result.value)
 
-      return {
-        generation: generationNames[genData.name] || genData.name,
-        pokemons,
-      }
-    }),
-  )
+    console.log(
+      `⚡ Procesando ${validGenerations.length} generaciones en paralelo...`,
+    )
 
-  // Opcional: ordenar generaciones si lo deseas
-  return result
+    // Procesar generaciones en paralelo
+    const result = await Promise.allSettled(
+      validGenerations.map(async (genData: any) => {
+        const speciesList: { name: string; url: string }[] =
+          genData.pokemon_species || []
+        const sorted = speciesList
+          .slice()
+          .sort((a, b) => extractIdFromUrl(a.url) - extractIdFromUrl(b.url))
+
+        // Procesamiento híbrido super rápido
+        const pokemons = await processInParallel(
+          sorted,
+          async (ps) => {
+            const id = extractIdFromUrl(ps.url)
+            const stage = await getEvolutionStage(id, ps.name)
+            const cost = calculateCost(stage)
+
+            return {
+              id,
+              name: ps.name,
+              sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
+              cost,
+              evolutionStage: stage,
+            }
+          },
+          20,
+        ) // 20 concurrent requests
+
+        return {
+          generation: generationNames[genData.name] || genData.name,
+          pokemons: pokemons.filter(Boolean),
+        }
+      }),
+    )
+
+    const validResults = result
+      .filter(
+        (result): result is PromiseFulfilledResult<GenerationPokemon> =>
+          result.status === "fulfilled",
+      )
+      .map((result) => result.value)
+
+    const endTime = Date.now()
+    console.log(` Carga completada en ${(endTime - startTime) / 1000}s`)
+
+    return validResults
+  } catch (_error) {
+    console.error("Error en carga rápida:", _error)
+    throw _error
+  }
 }
